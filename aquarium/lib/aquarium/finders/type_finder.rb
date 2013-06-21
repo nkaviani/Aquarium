@@ -212,7 +212,7 @@ module Aquarium
         end
         # JRuby returns types that aren't actually defined by the enclosing namespace.
         # As a sanity check, reject types whose names don't match the full regexp.
-        found_types.reject! {|t| t.name !~ regexp}
+        found_types.reject! {|t| t.is_a? Fixnum || t.name !~ regexp}
         if found_types.size > 0
           finish_and_make_successful_result found_types, option
         else
@@ -243,8 +243,14 @@ module Aquarium
         regexp = /#{lhs}#{subexp}#{rhs}/
         enclosing_types.each do |parent|
           next unless parent.respond_to?(:constants)
+          # print "PARENT => "
+          # p parent.metaclass
+          # print "Constants =>"
+          # p parent.metaclass.constants
           parent.constants.grep(regexp) do |name| 
             found_types << parent.const_get(name)
+            # found_types << parent.metaclass
+            # found_types << parent.const_get(name).new.metaclass if parent.const_get(name).is_a?(Class)
           end
         end
         found_types

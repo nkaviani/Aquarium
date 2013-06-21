@@ -347,15 +347,18 @@ module Aquarium
       def add_advice_to_chain join_point, advice_kind, advice
         # Note that we use the same static join point object throughout the chain. It is
         # equal to the passed-in join_point, except for additional context information.
-        start_of_advice_chain = Aspect.get_advice_chain join_point
-        options = @specification.merge({
-          :aspect => self,
-          :advice_kind => advice_kind, 
-          :advice => advice, 
-          :next_node => start_of_advice_chain,
-          :static_join_point => start_of_advice_chain.static_join_point})
-        # New node is new start of chain.
-        Aspect.set_advice_chain(join_point, AdviceChainNodeFactory.make_node(options))
+        begin
+          start_of_advice_chain = Aspect.get_advice_chain join_point
+          options = @specification.merge({
+            :aspect => self,
+            :advice_kind => advice_kind, 
+            :advice => advice, 
+            :next_node => start_of_advice_chain,
+            :static_join_point => start_of_advice_chain.static_join_point})
+          # New node is new start of chain.
+          Aspect.set_advice_chain(join_point, AdviceChainNodeFactory.make_node(options))
+        rescue
+        end
       end
 
       def get_jps which_jps
@@ -397,10 +400,21 @@ module Aquarium
           type_being_advised_text = "(class << self; self; end)"
         end
         metatype_to_advise = static_join_point.instance_method? ? type_to_advise : (class << type_to_advise; self; end)
-        metatype_to_advise.class_eval(<<-EOF, __FILE__, __LINE__)
-          #{def_eigenclass_method_text static_join_point}
-          #{alias_original_method_text alias_method_name, static_join_point, type_being_advised_text}
-        EOF
+        # if (static_join_point.method_name.id2name.eql? "metamethod") 
+        #   metatype_to_advise = type_to_advise.metaclass 
+        #   type_being_advised_text = "(class << self; self; end)"
+        # end
+        # print "MethodName: "; p static_join_point.method_name.id2name
+        # print "Type2Ad:    "; p type_to_advise
+        # print "Type:       "; p type_being_advised_text
+        # print "MetaType:   "; p metatype_to_advise
+        begin
+          metatype_to_advise.class_eval(<<-EOF, __FILE__, __LINE__)
+            #{def_eigenclass_method_text static_join_point}
+            #{alias_original_method_text alias_method_name, static_join_point, type_being_advised_text}
+          EOF
+        rescue
+        end
       end
       
       def make_static_join_point join_point
@@ -517,7 +531,10 @@ module Aquarium
 
       def self.get_advice_chain join_point
         advice_chain_attr_sym = self.make_advice_chain_attr_sym join_point
-        type_to_advise_for(join_point).send :class_variable_get, advice_chain_attr_sym
+        begin
+          type_to_advise_for(join_point).send :class_variable_get, advice_chain_attr_sym
+        rescue
+        end
       end
     
       def self.remove_advice_chain join_point
@@ -526,9 +543,14 @@ module Aquarium
       end
 
       def private_method_defined? join_point, alias_method_name
-        type_to_advise = Aspect.type_to_advise_for join_point
+        type_to_advise = Aspect.type_to_advise_for join_point        
         method_name = Aquarium::Utils::MethodUtils.to_name alias_method_name
-        type_to_advise.send(:private_instance_methods).include? method_name
+        # puts "TYPE #{type_to_advise}"
+        # puts "MTHD #{method_name}"
+        begin
+          type_to_advise.send(:private_instance_methods).include? method_name
+        rescue
+        end
       end
   
       def self.make_advice_chain_attr_sym join_point

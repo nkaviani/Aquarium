@@ -403,10 +403,21 @@ module Aquarium
       def add_join_points_to which_join_points_list, results_hash, type_or_object_sym
         results_hash.each_pair do |type_or_object, method_name_list|
           method_name_list.each do |method_name|
-            which_join_points_list << Aquarium::Aspects::JoinPoint.new(
-              type_or_object_sym => type_or_object, 
-              :method_name => method_name,
-              :instance_method => is_instance_methods?)
+
+            # puts "Adding join points to: "; print "\t"; p type_or_object; print "\t"; p  method_name
+            # p type_or_object.methods
+            # print ">>> "; p type_or_object.methods.include? method_name
+            # SETTING instance_method to false seems to solve the problem
+            # The singleton class is detected and gets profiled.
+              which_join_points_list << Aquarium::Aspects::JoinPoint.new(
+                type_or_object_sym => type_or_object,
+                :method_name => method_name,
+                :instance_method => (not type_or_object.methods.include? method_name))
+
+              # which_join_points_list << Aquarium::Aspects::JoinPoint.new(
+              #   type_or_object_sym => type_or_object, 
+              #   :method_name => method_name,
+              #   :instance_method => is_instance_methods?)
           end
         end
       end

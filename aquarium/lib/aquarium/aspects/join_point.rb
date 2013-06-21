@@ -229,10 +229,14 @@ module Aquarium
         type = options[:type]
         return type if type.nil?  # okay, if they specified an object!
         return type if type.kind_of? Module
-        found = Aquarium::Finders::TypeFinder.new.find :type => type
+        found = Aquarium::Finders::TypeFinder.new.find :type => type        
         if found.matched.empty?
-          bad_attributes("No type matched the string or regular expression: #{type.inspect}", options)
-        elsif found.matched.size > 1
+          # bad_attributes("No type matched the string or regular expression: #{type.inspect}", options)
+          return Regexp if type.inspect.to_s.index("/") == 0 
+          return String if type.inspect.to_s.index("{") == 0 
+        elsif found.matched.size > 1         
+          return Regexp if type.inspect.to_s.index("/") == 0 
+          return String if type.inspect.to_s.index("{") == 0        
           bad_attributes("More than one type matched the string or regular expression: #{type.inspect}", options)
         end
         found.matched.keys.first

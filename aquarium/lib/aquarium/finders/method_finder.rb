@@ -101,7 +101,7 @@ module Aquarium
           not_matched = {}
           types_and_objects.each {|t| not_matched[t] = []}
           return Aquarium::Finders::FinderResult.new(:not_matched => not_matched)
-        end
+        end        
         result = do_find_all_by types_and_objects, method_names_or_regexps
         unless (input_exclude_methods.nil? or input_exclude_methods.empty?)
           result -= do_find_all_by types_and_objects, input_exclude_methods
@@ -181,8 +181,10 @@ module Aquarium
         types_and_objects = make_array types_and_objects
         names_or_regexps  = make_methods_array method_names_or_regexps
         types_and_objects_to_matched_methods = {}
-        types_and_objects_not_matched = {}
+        types_and_objects_not_matched = {}                
         types_and_objects.each do |type_or_object|
+          # puts "obj>> " + type_or_object.to_s + " " + type_or_object.class.name
+          next if [String, Integer, Fixnum].include? type_or_object.class          
           reflection_method_names = make_methods_reflection_method_names type_or_object, "methods"
           found_methods = Set.new
           names_or_regexps.each do |name_or_regexp|
