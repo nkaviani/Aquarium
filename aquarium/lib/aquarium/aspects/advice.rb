@@ -162,8 +162,6 @@ module Aquarium
       def advice_wrapper jp
         params = jp.context.parameters
         # p "Method: ", @alias_method_name, "Params: ", params, "Blck: ", &jp.context.block_for_method
-        # TODO! The following piece of code needs to be fixed more effectively. It is anohter hack
-        #       for it to work with the NATSD demo code
         params = ( @alias_method_name.match /.*Connection_unbind.*/) ? params.clear : params
         jp.context.advised_object.send @alias_method_name, *params, &jp.context.block_for_method
       end
