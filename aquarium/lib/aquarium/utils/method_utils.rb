@@ -46,6 +46,8 @@ module Aquarium
         meta_method_suffixes.each do |suffix|
           %w[public protected private].each do |protection|
             meta_method = "#{protection}_#{suffix}"
+            next if (method_sym.eql? :all)
+            # print "Type: "; p type_or_instance; print "MethodSym: "; p method_sym
             found_methods = type_or_instance.__send__(meta_method, include_ancestors)
             # Try both the symbol (ruby 1.9) and the string (1.8).
             if found_methods.include?(method_sym) or found_methods.include?(method_sym.to_s)

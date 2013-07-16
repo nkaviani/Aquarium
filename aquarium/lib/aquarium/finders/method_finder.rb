@@ -334,13 +334,13 @@ module Aquarium
       end
       
       def extra_validation 
-        method_options = @specification[:method_options]
-        return if method_options.nil?
-        if method_options.include?(:singleton) && 
-          (method_options.include?(:class) || method_options.include?(:public) ||
-           method_options.include?(:protected) || method_options.include?(:private))
-          raise Aquarium::Utils::InvalidOptions.new("The :class:, :public, :protected, and :private flags can't be used with the :singleton flag.")
-        end
+        # method_options = @specification[:method_options]
+        # return if method_options.nil?
+        # if method_options.include?(:singleton) && 
+        #   (method_options.include?(:class) || method_options.include?(:public) ||
+        #    method_options.include?(:protected) || method_options.include?(:private))
+        #   raise Aquarium::Utils::InvalidOptions.new("The :class:, :public, :protected, and :private flags can't be used with the :singleton flag.")
+        # end
       end
     end
   end

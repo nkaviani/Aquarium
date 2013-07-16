@@ -161,7 +161,7 @@ module Aquarium
       end
       def advice_wrapper jp
         params = jp.context.parameters
-        # p "Method: ", @alias_method_name, "Params: ", params, "Blck: ", &jp.context.block_for_method
+        # print "---------\n"; p "Object: ", jp.context.advised_object, "Method: ", @alias_method_name, "Params: ", params, "Blck: ", &jp.context.block_for_method
         params = ( @alias_method_name.match /.*Connection_unbind.*/) ? params.clear : params
         jp.context.advised_object.send @alias_method_name, *params, &jp.context.block_for_method
       end

@@ -47,7 +47,11 @@ module Aquarium
         nested_constants.each do |const|
           next unless visiting_module.const_defined?(const)
           nested_module = ignore_warning do
-            use_underscore_methods ? visiting_module.__const_get__(const) : visiting_module.const_get(const)
+            begin
+              # print ">> Descendents INFO: "; p visiting_module; print "CONST => "; p const
+              use_underscore_methods ? visiting_module.__const_get__(const) : visiting_module.const_get(const)
+            rescue Exception => e
+            end
           end
           next if visited.include?(nested_module)
           next unless responds_to_ancestors?(nested_module)
